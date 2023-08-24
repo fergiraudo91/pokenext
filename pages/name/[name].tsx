@@ -26,15 +26,22 @@ export const getStaticPaths: GetStaticPaths = async (ctx) => {
     }));
     return {
       paths: [...pokemonsNames],
-      fallback: false,
+      fallback: 'blocking'
     };
   };
   
   export const getStaticProps: GetStaticProps = async ({ params }) => {
-    console.log(params);
     const { name } = params as {name: string};
-    const pokemon = await getPokemonInfo(name);
-    return { props: { pokemon } };
+    const pokemon = await getPokemonInfo(name.toLowerCase());
+    if(!pokemon){
+      return {
+        redirect: {
+          destination: '/',
+          permanent: false
+        }
+      }
+    }
+    return { props: { pokemon }, revalidate: 46800 };
   };
 
 export default PokemonByNamePage;
